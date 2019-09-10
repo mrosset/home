@@ -15,3 +15,14 @@
 
 ;; You should have received a copy of the GNU General Public License along
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+(define-module (tests home)
+  #:use-module (oop goops)
+  #:use-module (unit-test))
+
+(define-class <test-home> (<test-case>))
+
+(define-method (test-home (self <test-home>))
+  (assert-true #t))
+
+(exit-with-summary (run-all-defined-test-cases))
