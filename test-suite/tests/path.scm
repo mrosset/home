@@ -29,7 +29,8 @@
     (assert-equal "/tmp/home" (fluid-ref fluid~))
     (assert-equal "/tmp/home" (~))
     (assert-equal "/tmp/home/file" (~ "file"))
-    ;; (assert-equal "/tmp/home/dir/file" (~ "dir" "file"))
+    (assert-equal "/tmp/home/foobar" (~ (string-append "foo" "bar")))
+    (assert-equal "/tmp/home/dir/file" (~ "dir" "file"))
     ))
 
 (exit-with-summary (run-all-defined-test-cases))

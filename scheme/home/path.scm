@@ -23,13 +23,19 @@
 
 (define fluid~ (make-fluid (getenv "HOME")))
 
+(define (prefix-join prefix . args)
+  "join ARGS path under PREFIX"
+  (string-append prefix
+		 //
+		 (string-join args //)))
+
 (define-syntax ~
   (syntax-rules ()
     ((~)
      (fluid-ref fluid~))
     ((~ exp)
-     (string-append (fluid-ref fluid~) // exp))
-    ((~ . args) #t)
-    ))
+     (string-append (~) // exp))
+    ((~ . args)
+     (prefix-join (~) . args))))
 
 (define paths '())
