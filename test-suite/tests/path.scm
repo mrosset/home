@@ -1,4 +1,4 @@
-;; home.scm
+;; path.scm
 ;; Copyright (C) 2017-2019 Michael Rosset <mike.rosset@gmail.com>
 
 ;; This file is part of Home
@@ -16,13 +16,20 @@
 ;; You should have received a copy of the GNU General Public License along
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(define-module (tests home)
+(define-module (tests path)
   #:use-module (oop goops)
+  #:use-module (home path)
   #:use-module (unit-test))
 
-(define-class <test-home> (<test-case>))
+(define-class <test-path> (<test-case>))
 
-(define-method (test-home (self <test-home>))
-  (assert-true #t))
+(define-method (test-home-path (self <test-path>))
+  (assert-true (eq? '() paths))
+  (with-fluids ((fluid~ "/tmp/home"))
+    (assert-equal "/tmp/home" (fluid-ref fluid~))
+    (assert-equal "/tmp/home" (~))
+    (assert-equal "/tmp/home/file" (~ "file"))
+    ;; (assert-equal "/tmp/home/dir/file" (~ "dir" "file"))
+    ))
 
 (exit-with-summary (run-all-defined-test-cases))

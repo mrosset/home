@@ -22,8 +22,8 @@
 ####
 
 
-abs_top_srcdir="@abs_top_srcdir@"
-abs_top_builddir="@abs_top_builddir@"
+abs_top_srcdir="@abs_top_srcdir@/scheme"
+abs_top_builddir="@abs_top_builddir@/scheme/"
 
 [ x"$abs_top_srcdir"   = x -o ! -d "$abs_top_srcdir" -o \
   x"$abs_top_builddir" = x -o ! -d "$abs_top_builddir" ] && {

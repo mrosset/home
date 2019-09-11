@@ -17,7 +17,7 @@
 ## with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 TESTS = \
-	tests/home.scm
+	tests/path.scm
 
 TEST_EXTENSIONS = .scm
 

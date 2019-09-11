@@ -22,11 +22,9 @@
       (cons* "@CCACHEDIR@"
 	     %load-compiled-path))
 
-(use-modules
+(use-modules (home path))
 
-	     )
-
-(format #t "~a~%" (version))
+(format #t "~a~%" %load-path)
 
 ;; Local Variables:
 ;; mode: scheme
