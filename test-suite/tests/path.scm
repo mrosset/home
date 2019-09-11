@@ -23,7 +23,7 @@
 
 (define-class <test-path> (<test-case>))
 
-(define-method (test-home-path (self <test-path>))
+(define-method (test-~-macro (self <test-path>))
   (with-fluids ((fluid~ "/tmp/home"))
     (assert-equal "/tmp/home" (fluid-ref fluid~))
     (assert-equal "/tmp/home" (~))
@@ -31,5 +31,13 @@
     (assert-equal "/tmp/home/foobar" (~ (string-append "foo" "bar")))
     (assert-equal "/tmp/home/dir/file" (~ "dir" "file"))
     ))
+
+(define-method (test-home-path (self <test-path>))
+  (assert-equal <path> (class-of home))
+  (with-fluids ((fluid~ "/tmp/home"))
+    (assert-equal "/tmp/home" (path home)))
+  (assert (ensure? home))
+  (assert-equal #o700 (mode home))
+  )
 
 (exit-with-summary (run-all-defined-test-cases))

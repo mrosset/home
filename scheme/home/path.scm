@@ -17,7 +17,8 @@
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (home path)
-  #:export (// fluid~ ~))
+  #:use-module (oop goops)
+  #:export (// fluid~ ~ home <path> path dirs ensure? mode))
 
 (define // file-name-separator-string)
 
@@ -29,6 +30,16 @@
 		 //
 		 (string-join args //)))
 
+(define-class <path> (<string>)
+  (path #:init-keyword #:path #:init-value (lambda _ #f))
+  (dirs #:accessor dirs #:init-keyword #:dirs #:init-value '())
+  (ensure #:accessor ensure? #:init-keyword #:ensure #:init-value #t)
+  (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
+  )
+
+(define-method (path (path <path>))
+  ((slot-ref path 'path)))
+
 (define-syntax ~
   (syntax-rules ()
     ((~)
@@ -37,3 +48,9 @@
      (string-append (~) // exp))
     ((~ . args)
      (prefix-join (~) . args))))
+
+(define home
+  (make <path>
+    #:path (lambda _ (fluid-ref fluid~))
+    #:ensure #t
+    #:mode #o700))
