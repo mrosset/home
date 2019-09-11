@@ -1,7 +1,7 @@
 include $(top_srcdir)/am/guile.mk
 
 SOURCES = \
-	home/home.scm
+	home/path.scm
 
 CLEANFILES = \
 	$(GOBJECTS)
