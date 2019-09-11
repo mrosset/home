@@ -24,7 +24,6 @@
 (define-class <test-path> (<test-case>))
 
 (define-method (test-home-path (self <test-path>))
-  (assert-true (eq? '() paths))
   (with-fluids ((fluid~ "/tmp/home"))
     (assert-equal "/tmp/home" (fluid-ref fluid~))
     (assert-equal "/tmp/home" (~))

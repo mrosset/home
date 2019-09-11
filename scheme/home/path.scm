@@ -17,7 +17,7 @@
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (home path)
-  #:export (paths // fluid~ ~))
+  #:export (// fluid~ ~))
 
 (define // file-name-separator-string)
 
@@ -37,5 +37,3 @@
      (string-append (~) // exp))
     ((~ . args)
      (prefix-join (~) . args))))
-
-(define paths '())
