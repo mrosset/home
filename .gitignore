@@ -1,0 +1,16 @@
+*.go
+Makefile.in
+Makefile
+src/home
+aclocal.m4
+autom4te.cache/
+build-aux/compile
+build-aux/config.guess
+build-aux/config.sub
+build-aux/install-sh
+build-aux/missing
+config.cache
+config.log
+config.status
+configure
+pre-inst-env

@@ -18,13 +18,13 @@
 
 (define-module (home path)
   #:use-module (oop goops)
-  #:export (// fluid~ ~ home <path> path dirs ensure? mode))
+  #:export (// fluid~ ~ home))
 
 (define // file-name-separator-string)
 
 (define fluid~ (make-fluid (getenv "HOME")))
 
-(define (prefix-join prefix . args)
+(define (prefix-join prefix args)
   "join ARGS path under PREFIX"
   (string-append prefix
 		 //
@@ -32,25 +32,37 @@
 
 (define-class <path> (<string>)
   (path #:init-keyword #:path #:init-value (lambda _ #f))
-  (dirs #:accessor dirs #:init-keyword #:dirs #:init-value '())
-  (ensure #:accessor ensure? #:init-keyword #:ensure #:init-value #t)
+  (paths #:accessor paths #:init-keyword #:dirs #:init-value '())
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
+  (dir? #:accessor dir? #:init-keyword #:dir? #:init-value #f)
   )
 
-(define-method (path (path <path>))
-  ((slot-ref path 'path)))
+(define-method (make-path (self <string>))
+  (make <path> #:path (lambda _ self)))
 
-(define-syntax ~
-  (syntax-rules ()
-    ((~)
-     (fluid-ref fluid~))
-    ((~ exp)
-     (string-append (~) // exp))
-    ((~ . args)
-     (prefix-join (~) . args))))
+(define-method (path (self <path>))
+  ((slot-ref self 'path)))
 
-(define home
+(define-method (join (self <string>) (p <string>))
+  (string-append self // p))
+
+(define-method (join (self <path>) (p <string>))
+  (string-append (path self) // p))
+
+(define-method (join (self <path>) (paths <list>))
+  (prefix-join (path self) paths))
+
+(define-method (home (self <path>))
+  (path self))
+
+(export <path> home join paths path make-path mode dir?)
+
+(define-public ~
   (make <path>
     #:path (lambda _ (fluid-ref fluid~))
-    #:ensure #t
-    #:mode #o700))
+    #:dir? #t
+    #:mode #o700
+    ))
+
+;; (define-method (home (p <path>))
+  ;; (path p))

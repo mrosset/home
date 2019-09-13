@@ -1,4 +1,4 @@
 SUBDIRS = scheme test-suite src
 
-test:
+test: check
 	$(MAKE) -C src test

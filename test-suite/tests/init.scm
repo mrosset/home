@@ -1,7 +1,5 @@
-#!@GUILE@ -s
-!#
-;; home.in
-;; Copyright (C) 2017-2018 Michael Rosset <mike.rosset@gmail.com>
+;; init.scm
+;; Copyright (C) 2017-2019 Michael Rosset <mike.rosset@gmail.com>
 
 ;; This file is part of Home
 
@@ -18,17 +16,18 @@
 ;; You should have received a copy of the GNU General Public License along
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(set! %load-compiled-path
-      (cons* "@CCACHEDIR@"
-	     %load-compiled-path))
+(define-module (tests init)
+  #:use-module (oop goops)
+  #:use-module (home path)
+  #:use-module (home init)
+  #:use-module (unit-test)
+  )
 
-(use-modules (home init)
-	     (home path))
+(define-class <test-init> (<test-case>))
 
-;; (with-fluids ((fluid~ (string "/tmp/home")))
-  ;; (init)
-  ;; )
+(define-method (test-globals (self <test-init>))
+  (with-fluids ((fluid~ "/tmp/home"))
+    (assert-equal "/tmp/home/.home" (user-init-file)))
+  )
 
-;; Local Variables:
-;; mode: scheme
-;; End:
+(exit-with-summary (run-all-defined-test-cases))

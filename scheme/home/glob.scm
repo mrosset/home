@@ -1,7 +1,5 @@
-#!@GUILE@ -s
-!#
-;; home.in
-;; Copyright (C) 2017-2018 Michael Rosset <mike.rosset@gmail.com>
+;; glob.scm
+;; Copyright (C) 2017-2019 Michael Rosset <mike.rosset@gmail.com>
 
 ;; This file is part of Home
 
@@ -17,18 +15,3 @@
 
 ;; You should have received a copy of the GNU General Public License along
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-(set! %load-compiled-path
-      (cons* "@CCACHEDIR@"
-	     %load-compiled-path))
-
-(use-modules (home init)
-	     (home path))
-
-;; (with-fluids ((fluid~ (string "/tmp/home")))
-  ;; (init)
-  ;; )
-
-;; Local Variables:
-;; mode: scheme
-;; End:
