@@ -19,14 +19,12 @@
 (define-module (tests path)
   #:use-module (oop goops)
   #:use-module (home path)
-  #:use-module (g-golf)
   #:use-module (unit-test))
 
 (define-class <test-path> (<test-case>))
 
-(define-method (test-contructors (self <test-path>))
-  (assert-equal "/tmp/home" (path (make-path "/tmp/home")))
-  )
+(define-method (test-constructors (self <test-path>))
+  (assert-equal "/tmp/home" (path (make-path "/tmp/home"))))
 
 (define-method (test-join-path (self <test-path>))
   (assert-equal "/tmp/home" (join "/tmp" "home")))
@@ -41,7 +39,6 @@
   (assert-equal '() (paths ~))
   (assert-equal #o700 (mode ~))
   (assert-true (dir? ~))
-  (describe ~)
   (home ~)
   )
 
