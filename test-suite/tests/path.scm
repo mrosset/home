@@ -22,57 +22,56 @@
   #:use-module (home path)
   #:duplicates (merge-generics))
 
-(define (println var)
-  (format #t "~a~%" var))
-
 (define-class <test-path> (<test-case>))
 
-(define-method (test-equal? (self <test-path>))
-  (assert-true (equal? (make <path> #:path (lambda _ "/tmp") #:dir? #f #:mode 422)
-                       (make <path> #:path (lambda _ "/tmp") #:dir? #f #:mode 422)))
-  (assert-false (equal? (make <path> #:path (lambda _ "/foo") #:dir? #f #:mode 422)
-                        (make <path> #:path (lambda _ "/bar") #:dir? #f #:mode 422)))
-  (assert-false (equal? (make <path> #:path (lambda _ "/tmp") #:dir? #t #:mode 422)
-                        (make <path> #:path (lambda _ "/tmp") #:dir? #f #:mode 422)))
-  (assert-false (equal? (make <path> #:path (lambda _ "/tmp") #:dir? #f #:mode 420)
-                        (make <path> #:path (lambda _ "/tmp") #:dir? #f #:mode 422))))
+(define-method (test-path-fluid (self <test-path>))
+  (with-fluids ((fluid~ "/tmp/home"))
+    (assert-equal "/tmp/home" (path-name (make <path> #:thunk ~)))))
+
+(define-method (test-path-~ (self <test-path>))
+  (with-fluids ((fluid~ "/tmp/home"))
+    (assert-equal "/tmp/home" (~))))
+
+(define-method (test-path-~/ (self <test-path>))
+  (with-fluids ((fluid~ "/tmp/home"))
+    (assert-equal "/tmp/home/foo" (~/ "foo"))))
+
+(define-method (test-path-defaults (self <test-path>))
+  (let ((path (make <path>)))
+    (assert-equal #f (path-name path))
+    (assert-equal #o644 (mode path))
+    (assert-equal #f (type path))))
+
+(define-method (test-file-defaults (self <test-path>))
+  (let ((path (make <file>)))
+    (assert-equal #o644 (mode path))
+    (assert-equal 'file (type path))))
+
+(define-method (test-dir-defaults (self <test-path>))
+  (let ((path (make <dir>)))
+    (assert-equal #o755 (mode path))
+    (assert-equal 'dirctory (type path))))
+
+(define-method (test-path-equality (self <test-path>))
+  (assert-equal (make <path> #:thunk (lambda _ "/tmp") #:type 'directory #:mode 422)
+                      (make <path> #:thunk (lambda _ "/tmp") #:type 'directory #:mode 422))
+  (assert-false (equal? (make <path> #:thunk (lambda _ "/foo") #:type 'directory  #:mode 422)
+                 (make <path> #:thunk (lambda _ "/bar") #:type 'directory #:mode 422)))
+  (assert-false (equal? (make <path> #:thunk (lambda _ "/tmp") #:type 'file #:mode 422)
+                        (make <path> #:thunk (lambda _ "/tmp") #:type 'directory #:mode 422)))
+  (assert-false (equal? (make <path> #:thunk (lambda _ "/tmp") #:type #f #:mode 420)
+                        (make <path> #:thunk (lambda _ "/tmp") #:type #f #:mode 422))))
 
 (define-method (test-constructors (self <test-path>))
-  (assert-true (path= "/tmp/home" (make-path "/tmp/home")))
+  (assert-true (path= "/tmp/home" (string->path "/tmp/home")))
   (let* ((tmp (tmpnam))
-         (data (make <path> #:path (lambda _ tmp) #:dir? #t #:mode 420)))
+         (data (make <path> #:thunk (lambda _ tmp) #:type 'directory #:mode 420)))
     (dynamic-wind
       (lambda _
         (mkdir tmp #o700))
       (lambda _
-        (assert-true (equal? data (disk->path tmp))))
+        (assert-equal data (disk->path tmp)))
       (lambda _
         (rmdir tmp)))))
-
-(define-method (test-path-to-string (self <test-path>))
-  (assert-equal "/tmp/home" (path->string (make-path "/tmp/home"))))
-
-(define-method (test-path-equal (self <test-path>))
-  (let ((test-path (make-path "/tmp/home")))
-    (assert-true (path= "/tmp/home" test-path))
-    (assert-true (path= test-path "/tmp/home"))
-    (assert-true (path= test-path test-path))))
-
-(define-method (test-join-path (self <test-path>))
-  (assert-equal "/tmp/home" (join "/tmp" "home")))
-
-(define-method (test-home-path (self <test-path>))
-  (assert-equal <path> (class-of ~))
-  (with-fluids ((fluid~ "/tmp/home"))
-    (assert-true (path= "/tmp/home" ~))
-    (assert-equal "/tmp/home/file" (join ~ "file"))
-    (assert-equal "/tmp/home/dir/file" (join ~ '("dir" "file")))
-    (assert-equal '() (paths ~))
-    (assert-true (begin (add-child ~ "child")
-                        (path= "/tmp/home/child"(car (paths ~)))))
-    (with-fluids ((fluid~ "/tmp/home2"))
-      (assert-equal "/tmp/home2/child"  (path->string (car (paths ~))))))
-  (assert-equal #o700 (mode ~))
-  (assert-true (dir? ~)))
 
 (exit-with-summary (run-all-defined-test-cases))

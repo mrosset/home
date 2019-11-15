@@ -20,9 +20,7 @@
   :use-module (home path))
 
 (define-public (user-init-file)
-  (string-append (fluid-ref fluid~)
-		 //
-		 ".home"))
+  (~/ ".home"))
 
 (define-public (init)
   (load (user-init-file)))

@@ -18,79 +18,82 @@
 
 (define-module (home path)
   #:use-module (oop goops)
-  #:export (fluid~ // ~ home <path> join paths path->string
-                   make-path mode dir? add-child path path= disk->path))
+  #:use-module (home records)
+  #:export (
+            ~
+            ~/
+            //
+            home
+            <path>
+            <file>
+            <dir>
+            string->path
+            disk->path
+            path
+            path=
+            mode
+            type
+            path-name
+            fluid~))
 
 (define fluid~ (make-fluid (getenv "HOME")))
 
-;; (read-hash-extend #\~
-;;                   (lambda (c port)
-;;                     (~~)))
-
 (define // file-name-separator-string)
 
-(define (prefix-join prefix args)
-  "join ARGS path under PREFIX"
-  (string-append prefix
-                 //
-                 (string-join args //)))
+(define ~ (lambda _ (fluid-ref fluid~)))
+
+(define (~/ child)
+  (string-append (~) // child))
 
 (define-class <path> (<string>)
-  (path #:init-keyword #:path #:init-value (lambda _ #f))
-  (paths #:accessor paths #:init-keyword #:dirs #:init-value '())
+  (input #:accessor input #:init-keyword #:input #:init-value #f)
+  (thunk #:accessor path-thunk #:init-keyword #:thunk #:init-value (lambda _ #f))
+  (paths #:accessor paths #:init-keyword #:paths #:init-value '())
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
-  (dir? #:accessor dir? #:init-keyword #:dir? #:init-value #f))
+  (type #:accessor type #:init-keyword #:type #:init-value #f))
 
-(define-method (make-path (self <string>))
-  (make <path> #:path (lambda _ self)))
+(define-class <file> (<path>)
+  (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
+  (type #:accessor type #:init-keyword #:type #:init-value 'file))
 
-(define-method (disk->path (self <string>))
-  (let ((fi (stat self)))
-    (make <path>
-      #:path (lambda _ self)
-      #:dir? (eq? (stat:type fi) 'directory))))
+(define-class <dir> (<path>)
+  (mode #:accessor mode #:init-keyword #:mode #:init-value #o755)
+  (type #:accessor type #:init-keyword #:type #:init-value 'directory))
+
+;; Path methods
+(define-method (path-name (self <path>))
+  ((path-thunk self)))
+
+(define-method (write (self <path>) port)
+  (with-output-to-port port
+    (lambda _
+      (format #t "#<~a name: ~s input: ~a mode: ~a type: ~a>"
+              (class-name (class-of self))
+              (path-name self)
+              (input self)
+              (mode self)
+              (type self)))))
 
 (define-generic equal?)
 
 (define-method (equal? (a <path>) (b <path>))
-  (if (and (string= (path->string a) (path->string b))
+  (if (and (string= (path-name a) (path-name b))
            (eq? (mode a) (mode b))
-           (eq? (dir? a) (dir? b)))
+           (eq? (type a) (type b)))
       #t
       #f))
 
-(define-method (write (self <path>) port)
-  (write (string-concatenate (list "#<path '" (path->string self) "'>")) port))
+(define-method (string->path (self <string>))
+  (make <path> #:thunk (lambda _ self)))
 
-(define-method (path->string (self <path>))
-  ((slot-ref self 'path)))
+(define-method (disk->path (self <string>))
+  (let ((fi (stat self)))
+    (make <path>
+      #:thunk (lambda _ self)
+      #:type (stat:type fi))))
 
-(define-method (path= (s <string>) (self <path>))
-  (string= s (path->string self)))
+(define-method (path= (a <string>) (b <path>))
+  (string= a (path-name b)))
 
 (define-method (path= (a <path>) (b <path>))
-  (string= (path->string a) (path->string b)))
-
-(define-method (path= (a <path>) (b <string>))
-  (string= (path->string a) b))
-
-(define-method (join (self <string>) (p <string>))
-  (string-append self // p))
-
-(define-method (join (self <path>) (p <string>))
-  (string-append (path->string self) // p))
-
-(define-method (join (self <path>) (paths <list>))
-  (prefix-join (path->string self) paths))
-
-(define-method (add-child (self <path>) (p <string>))
-  (set! (paths self) (cons* (make <path> #:path (lambda _ (join self p))) (paths ~))))
-
-(define-public ~
-  (make <path>
-    #:path (lambda _ (fluid-ref fluid~))
-    #:dir? #t
-    #:mode #o700))
-
-;; (define-method (home (p <path>))
-  ;; (path p))
+  (string= (path-name a) (path-name b)))
