@@ -23,8 +23,7 @@
   #:use-module (home path)
   #:use-module (home dir)
   #:use-module (home file)
-  #:use-module (home doc-here)
-  #:duplicates (merge-generics))
+  #:use-module (home doc-here))
 
 (define-class <test-path> (<test-case>))
 
@@ -45,16 +44,6 @@
     (assert-equal #f (path-name path))
     (assert-equal #o644 (mode path))
     (assert-equal #f (type path))))
-
-(define-method (test-file-defaults (self <test-path>))
-  (let ((path (make <file>)))
-    (assert-equal #o644 (mode path))
-    (assert-equal 'file (type path))))
-
-(define-method (test-dir-defaults (self <test-path>))
-  (let ((path (make <dir>)))
-    (assert-equal #o755 (mode path))
-    (assert-equal 'directory (type path))))
 
 (define-method (test-path-equality (self <test-path>))
   (assert-equal (make <path> #:path "/tmp" #:type 'directory #:mode 422)
@@ -78,33 +67,5 @@
         (assert-equal data (disk->path tmp)))
       (lambda _
         (rmdir tmp)))))
-
-(define-method (test-validation (self <test-path>))
-  (let* ((tmp (tmpnam))
-         (data "GNU")
-         (doc (make <doc-here>
-                #:content "GNU"))
-         (file (make <file>
-                 #:path tmp
-                 #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"))
-         (fail-doc (shallow-clone doc))
-         (fail-file (shallow-clone doc)))
-    (set! (file-hash fail-doc) "fail")
-    (set! (file-hash fail-file) "fail")
-    (dynamic-wind
-      (lambda _
-        (call-with-output-file tmp
-          (lambda (port)
-            (display data port)
-            (close-output-port port))))
-      (lambda _
-        (assert-true (sum= doc file))
-        (assert-true (check-sum? doc))
-        (assert-true (check-sum? file))
-        (assert-false (check-sum? fail-doc))
-        (assert-false (check-sum? fail-file)))
-      (lambda _
-        (delete-file tmp)
-        ))))
 
 (exit-with-summary (run-all-defined-test-cases))

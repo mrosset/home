@@ -18,6 +18,9 @@
 
 TESTS =
 TESTS += tests/path.scm
+TESTS += tests/dir.scm
+TESTS += tests/file.scm
+TESTS += tests/doc-here.scm
 TESTS += tests/init.scm
 
 TEST_EXTENSIONS = .scm
