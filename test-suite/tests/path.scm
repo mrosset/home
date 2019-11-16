@@ -26,7 +26,7 @@
 
 (define-method (test-path-fluid (self <test-path>))
   (with-fluids ((fluid~ "/tmp/home"))
-    (assert-equal "/tmp/home" (path-name (make <path> #:thunk ~)))))
+    (assert-equal "/tmp/home" (path-name (make <path> #:path ~)))))
 
 (define-method (test-path-~ (self <test-path>))
   (with-fluids ((fluid~ "/tmp/home"))
@@ -50,22 +50,23 @@
 (define-method (test-dir-defaults (self <test-path>))
   (let ((path (make <dir>)))
     (assert-equal #o755 (mode path))
-    (assert-equal 'dirctory (type path))))
+    (assert-equal 'directory (type path))))
 
 (define-method (test-path-equality (self <test-path>))
-  (assert-equal (make <path> #:thunk (lambda _ "/tmp") #:type 'directory #:mode 422)
-                      (make <path> #:thunk (lambda _ "/tmp") #:type 'directory #:mode 422))
-  (assert-false (equal? (make <path> #:thunk (lambda _ "/foo") #:type 'directory  #:mode 422)
-                 (make <path> #:thunk (lambda _ "/bar") #:type 'directory #:mode 422)))
-  (assert-false (equal? (make <path> #:thunk (lambda _ "/tmp") #:type 'file #:mode 422)
-                        (make <path> #:thunk (lambda _ "/tmp") #:type 'directory #:mode 422)))
-  (assert-false (equal? (make <path> #:thunk (lambda _ "/tmp") #:type #f #:mode 420)
-                        (make <path> #:thunk (lambda _ "/tmp") #:type #f #:mode 422))))
+  (assert-equal (make <path> #:path "/tmp" #:type 'directory #:mode 422)
+                      (make <path> #:path "/tmp" #:type 'directory #:mode 422))
+  (assert-false (equal? (make <path> #:path "/foo" #:type 'directory  #:mode 422)
+                 (make <path> #:path "/bar" #:type 'directory #:mode 422)))
+  (assert-false (equal? (make <path> #:path "/tmp" #:type 'file #:mode 422)
+                        (make <path> #:path "/tmp" #:type 'directory #:mode 422)))
+  (assert-false (equal? (make <path> #:path "/tmp" #:type #f #:mode 420)
+                        (make <path> #:path "/tmp" #:type #f #:mode 422))))
 
 (define-method (test-constructors (self <test-path>))
   (assert-true (path= "/tmp/home" (string->path "/tmp/home")))
+  (assert-equal (make <path> #:path "/tmp/foo") (make <path> #:path "/tmp/foo"))
   (let* ((tmp (tmpnam))
-         (data (make <path> #:thunk (lambda _ tmp) #:type 'directory #:mode 420)))
+         (data (make <path> #:path tmp #:type 'directory #:mode 420)))
     (dynamic-wind
       (lambda _
         (mkdir tmp #o700))
@@ -73,5 +74,27 @@
         (assert-equal data (disk->path tmp)))
       (lambda _
         (rmdir tmp)))))
+
+(define-method (test-validation (self <test-path>))
+  (assert-true (check-sum? (make <doc-here>
+                         #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"
+                         #:content "GNU")))
+  (let* ((tmp (tmpnam))
+         (data "GNU")
+         (file (make <file>
+                 #:path tmp
+                 #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0")))
+    (dynamic-wind
+      (lambda _
+        (call-with-output-file tmp
+          (lambda (port)
+            (display data port)
+            (close-output-port port))))
+      (lambda _
+        (assert-true (check-sum? file))
+        )
+      (lambda _
+        (delete-file tmp)
+        ))))
 
 (exit-with-summary (run-all-defined-test-cases))

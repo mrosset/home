@@ -17,7 +17,11 @@
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (home path)
+  #:use-module (srfi srfi-26)
   #:use-module (oop goops)
+  #:use-module (oop goops describe)
+  #:use-module (gcrypt hash)
+  #:use-module (gcrypt base16)
   #:use-module (home records)
   #:export (
             ~
@@ -27,12 +31,14 @@
             <path>
             <file>
             <dir>
+            <doc-here>
             string->path
             disk->path
             path
             path=
             mode
             type
+            check-sum?
             path-name
             fluid~))
 
@@ -42,19 +48,32 @@
 
 (define ~ (lambda _ (fluid-ref fluid~)))
 
-(define (~/ child)
-  (string-append (~) // child))
+(define ~/
+  (cut string-append (~) // <>))
 
 (define-class <path> (<string>)
   (input #:accessor input #:init-keyword #:input #:init-value #f)
-  (thunk #:accessor path-thunk #:init-keyword #:thunk #:init-value (lambda _ #f))
-  (paths #:accessor paths #:init-keyword #:paths #:init-value '())
+  (path #:accessor path #:init-keyword #:path #:init-value (lambda _ #f))
+  (paths #:accessor paths #:init-keyword #:paths #:init-value #f)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
   (type #:accessor type #:init-keyword #:type #:init-value #f))
 
 (define-class <file> (<path>)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
+  (hash #:accessor hash #:init-keyword #:hash #:init-value #f)
   (type #:accessor type #:init-keyword #:type #:init-value 'file))
+
+(define-method (check-sum? (self <file>))
+   (string= (hash self) (bytevector->base16-string (file-sha256 (path-name self)))))
+
+(define-class <doc-here> (<file>)
+  (content #:accessor content #:init-keyword #:content #:init-value #f)
+  (type #:accessor type #:init-keyword #:type #:init-value 'document))
+
+(define-method (check-sum? (self <doc-here>))
+  (call-with-input-string (content self)
+    (lambda (port)
+      (string= (hash self) (bytevector->base16-string (port-sha256 port))))))
 
 (define-class <dir> (<path>)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o755)
@@ -62,9 +81,11 @@
 
 ;; Path methods
 (define-method (path-name (self <path>))
-  ((path-thunk self)))
+  (if (string? (path self))
+      (path self)
+      ((path self))))
 
-(define-method (write (self <path>) port)
+(define-method (custom-write (self <path>) port)
   (with-output-to-port port
     (lambda _
       (format #t "#<~a name: ~s input: ~a mode: ~a type: ~a>"
@@ -72,24 +93,26 @@
               (path-name self)
               (input self)
               (mode self)
-              (type self)))))
+              (type self))
+      (close-port port))))
 
 (define-generic equal?)
 
 (define-method (equal? (a <path>) (b <path>))
   (if (and (string= (path-name a) (path-name b))
+           (eq? (paths a) (paths b))
            (eq? (mode a) (mode b))
            (eq? (type a) (type b)))
       #t
       #f))
 
 (define-method (string->path (self <string>))
-  (make <path> #:thunk (lambda _ self)))
+  (make <path> #:path (lambda _ self)))
 
 (define-method (disk->path (self <string>))
   (let ((fi (stat self)))
     (make <path>
-      #:thunk (lambda _ self)
+      #:path (lambda _ self)
       #:type (stat:type fi))))
 
 (define-method (path= (a <string>) (b <path>))
