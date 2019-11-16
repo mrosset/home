@@ -54,9 +54,9 @@
 
 (define-method (test-path-equality (self <test-path>))
   (assert-equal (make <path> #:path "/tmp" #:type 'directory #:mode 422)
-                      (make <path> #:path "/tmp" #:type 'directory #:mode 422))
+                (make <path> #:path "/tmp" #:type 'directory #:mode 422))
   (assert-false (equal? (make <path> #:path "/foo" #:type 'directory  #:mode 422)
-                 (make <path> #:path "/bar" #:type 'directory #:mode 422)))
+                        (make <path> #:path "/bar" #:type 'directory #:mode 422)))
   (assert-false (equal? (make <path> #:path "/tmp" #:type 'file #:mode 422)
                         (make <path> #:path "/tmp" #:type 'directory #:mode 422)))
   (assert-false (equal? (make <path> #:path "/tmp" #:type #f #:mode 420)
@@ -76,11 +76,11 @@
         (rmdir tmp)))))
 
 (define-method (test-validation (self <test-path>))
-  (assert-true (check-sum? (make <doc-here>
-                         #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"
-                         #:content "GNU")))
   (let* ((tmp (tmpnam))
          (data "GNU")
+         (doc (make <doc-here>
+                #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"
+                #:content "GNU"))
          (file (make <file>
                  #:path tmp
                  #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0")))
@@ -91,6 +91,8 @@
             (display data port)
             (close-output-port port))))
       (lambda _
+        (assert-true (sum= doc file))
+        (assert-true (check-sum? doc))
         (assert-true (check-sum? file))
         )
       (lambda _

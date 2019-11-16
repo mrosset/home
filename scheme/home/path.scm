@@ -20,7 +20,7 @@
   #:use-module (srfi srfi-26)
   #:use-module (oop goops)
   #:use-module (oop goops describe)
-  #:use-module (gcrypt hash)
+  #:use-module ((gcrypt hash) #:prefix gcrypt:)
   #:use-module (gcrypt base16)
   #:use-module (home records)
   #:export (
@@ -36,6 +36,8 @@
             disk->path
             path
             path=
+            file=
+            sum=
             mode
             type
             check-sum?
@@ -60,11 +62,22 @@
 
 (define-class <file> (<path>)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
-  (hash #:accessor hash #:init-keyword #:hash #:init-value #f)
+  (hash #:accessor file-hash #:init-keyword #:hash #:init-value #f)
   (type #:accessor type #:init-keyword #:type #:init-value 'file))
 
+(define-method (sum= (a <file>) (b <file>))
+  (string= (file-hash a) (file-hash b)))
+
+(define-method (file= (a <file>) (b <file>))
+  (if (and (string= (file-hash a) (file-hash b))
+           (equal? a b))
+      #t
+      (begin (describe a)
+             (describe b)
+             #f)))
+
 (define-method (check-sum? (self <file>))
-   (string= (hash self) (bytevector->base16-string (file-sha256 (path-name self)))))
+   (string= (file-hash self) (bytevector->base16-string (gcrypt:file-sha256 (path-name self)))))
 
 (define-class <doc-here> (<file>)
   (content #:accessor content #:init-keyword #:content #:init-value #f)
@@ -73,7 +86,7 @@
 (define-method (check-sum? (self <doc-here>))
   (call-with-input-string (content self)
     (lambda (port)
-      (string= (hash self) (bytevector->base16-string (port-sha256 port))))))
+      (string= (file-hash self) (bytevector->base16-string (gcrypt:port-sha256 port))))))
 
 (define-class <dir> (<path>)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o755)
@@ -95,8 +108,6 @@
               (mode self)
               (type self))
       (close-port port))))
-
-(define-generic equal?)
 
 (define-method (equal? (a <path>) (b <path>))
   (if (and (string= (path-name a) (path-name b))
