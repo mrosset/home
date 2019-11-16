@@ -21,6 +21,9 @@
   #:use-module (oop goops describe)
   #:use-module (unit-test)
   #:use-module (home path)
+  #:use-module (home dir)
+  #:use-module (home file)
+  #:use-module (home doc-here)
   #:duplicates (merge-generics))
 
 (define-class <test-path> (<test-case>))

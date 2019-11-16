@@ -1,4 +1,4 @@
-;; init.scm
+;; dir.scm
 ;; Copyright (C) 2017-2019 Michael Rosset <mike.rosset@gmail.com>
 
 ;; This file is part of Home
@@ -15,19 +15,11 @@
 
 ;; You should have received a copy of the GNU General Public License along
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-(define-module (tests init)
-  #:use-module (oop goops)
+(define-module (home dir)
   #:use-module (home path)
-  #:use-module (home init)
-  #:use-module (home doc-here)
-  #:use-module (unit-test)
-  )
+  #:use-module (oop goops)
+  #:export (<dir>))
 
-(define-class <test-init> (<test-case>))
-
-(define-method (test-globals (self <test-init>))
-  (with-fluids ((fluid~ "/tmp/home"))
-    (assert-equal "/tmp/home/.home" (user-init-file))))
-
-(exit-with-summary (run-all-defined-test-cases))
+(define-class <dir> (<path>)
+  (mode #:accessor mode #:init-keyword #:mode #:init-value #o755)
+  (type #:accessor type #:init-keyword #:type #:init-value 'directory))

@@ -1,4 +1,4 @@
-;; init.scm
+;; doc-here.scm
 ;; Copyright (C) 2017-2019 Michael Rosset <mike.rosset@gmail.com>
 
 ;; This file is part of Home
@@ -16,18 +16,27 @@
 ;; You should have received a copy of the GNU General Public License along
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(define-module (tests init)
+(define-module (home doc-here)
   #:use-module (oop goops)
-  #:use-module (home path)
-  #:use-module (home init)
-  #:use-module (home doc-here)
-  #:use-module (unit-test)
-  )
+  #:use-module (home file)
+  #:use-module ((gcrypt hash) #:prefix gcrypt:)
+  #:use-module (gcrypt base16)
+  #:export (<doc-here>
+	    sum
+	    check-sum?))
 
-(define-class <test-init> (<test-case>))
+(define-class <doc-here> (<file>)
+  (content #:accessor content #:init-keyword #:content #:init-value #f)
+  (type #:accessor type #:init-keyword #:type #:init-value 'document))
 
-(define-method (test-globals (self <test-init>))
-  (with-fluids ((fluid~ "/tmp/home"))
-    (assert-equal "/tmp/home/.home" (user-init-file))))
+(define-method (initialize (self <doc-here>) args)
+  (next-method)
+  (set! (file-hash self) (sum self)))
 
-(exit-with-summary (run-all-defined-test-cases))
+(define-method (sum (self <doc-here>))
+  (call-with-input-string (content self)
+    (lambda (port)
+      (bytevector->base16-string (gcrypt:port-sha256 port)))))
+
+(define-method (check-sum? (self <doc-here>))
+  (string= (file-hash self) (sum self)))

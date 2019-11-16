@@ -22,27 +22,18 @@
   #:use-module (oop goops describe)
   #:use-module ((gcrypt hash) #:prefix gcrypt:)
   #:use-module (gcrypt base16)
-  #:use-module (home records)
   #:export (
             ~
             ~/
             //
             home
             <path>
-            <file>
-            <dir>
-            <doc-here>
             string->path
             disk->path
             path
             path=
-            file=
-            file-hash
-            sum
-            sum=
             mode
             type
-            check-sum?
             path-name
             fluid~))
 
@@ -61,48 +52,6 @@
   (paths #:accessor paths #:init-keyword #:paths #:init-value #f)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
   (type #:accessor type #:init-keyword #:type #:init-value #f))
-
-(define-class <file> (<path>)
-  (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
-  (hash #:accessor file-hash #:init-keyword #:hash #:init-value #f)
-  (type #:accessor type #:init-keyword #:type #:init-value 'file))
-
-(define-method (sum= (a <file>) (b <file>))
-  (string= (file-hash a) (file-hash b)))
-
-(define-method (file= (a <file>) (b <file>))
-  (if (and (string= (file-hash a) (file-hash b))
-           (equal? a b))
-      #t
-      (begin (describe a)
-             (describe b)
-             #f)))
-
-(define-method (sum (self <file>))
-  (bytevector->base16-string (gcrypt:file-sha256 (path-name self))))
-
-(define-method (check-sum? (self <file>))
-   (string= (file-hash self) (sum self)))
-
-(define-class <doc-here> (<file>)
-  (content #:accessor content #:init-keyword #:content #:init-value #f)
-  (type #:accessor type #:init-keyword #:type #:init-value 'document))
-
-(define-method (initialize (self <doc-here>) args)
-  (next-method)
-  (set! (file-hash self) (sum self)))
-
-(define-method (sum (self <doc-here>))
-  (call-with-input-string (content self)
-    (lambda (port)
-      (bytevector->base16-string (gcrypt:port-sha256 port)))))
-
-(define-method (check-sum? (self <doc-here>))
-  (string= (file-hash self) (sum self)))
-
-(define-class <dir> (<path>)
-  (mode #:accessor mode #:init-keyword #:mode #:init-value #o755)
-  (type #:accessor type #:init-keyword #:type #:init-value 'directory))
 
 ;; Path methods
 (define-method (path-name (self <path>))
