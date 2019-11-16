@@ -18,6 +18,7 @@
 
 (define-module (tests path)
   #:use-module (oop goops)
+  #:use-module (oop goops describe)
   #:use-module (unit-test)
   #:use-module (home path)
   #:duplicates (merge-generics))
@@ -79,11 +80,14 @@
   (let* ((tmp (tmpnam))
          (data "GNU")
          (doc (make <doc-here>
-                #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"
                 #:content "GNU"))
          (file (make <file>
                  #:path tmp
-                 #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0")))
+                 #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"))
+         (fail-doc (shallow-clone doc))
+         (fail-file (shallow-clone doc)))
+    (set! (file-hash fail-doc) "fail")
+    (set! (file-hash fail-file) "fail")
     (dynamic-wind
       (lambda _
         (call-with-output-file tmp
@@ -94,7 +98,8 @@
         (assert-true (sum= doc file))
         (assert-true (check-sum? doc))
         (assert-true (check-sum? file))
-        )
+        (assert-false (check-sum? fail-doc))
+        (assert-false (check-sum? fail-file)))
       (lambda _
         (delete-file tmp)
         ))))

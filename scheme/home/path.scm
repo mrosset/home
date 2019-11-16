@@ -37,6 +37,8 @@
             path
             path=
             file=
+            file-hash
+            sum
             sum=
             mode
             type
@@ -76,17 +78,27 @@
              (describe b)
              #f)))
 
+(define-method (sum (self <file>))
+  (bytevector->base16-string (gcrypt:file-sha256 (path-name self))))
+
 (define-method (check-sum? (self <file>))
-   (string= (file-hash self) (bytevector->base16-string (gcrypt:file-sha256 (path-name self)))))
+   (string= (file-hash self) (sum self)))
 
 (define-class <doc-here> (<file>)
   (content #:accessor content #:init-keyword #:content #:init-value #f)
   (type #:accessor type #:init-keyword #:type #:init-value 'document))
 
-(define-method (check-sum? (self <doc-here>))
+(define-method (initialize (self <doc-here>) args)
+  (next-method)
+  (set! (file-hash self) (sum self)))
+
+(define-method (sum (self <doc-here>))
   (call-with-input-string (content self)
     (lambda (port)
-      (string= (file-hash self) (bytevector->base16-string (gcrypt:port-sha256 port))))))
+      (bytevector->base16-string (gcrypt:port-sha256 port)))))
+
+(define-method (check-sum? (self <doc-here>))
+  (string= (file-hash self) (sum self)))
 
 (define-class <dir> (<path>)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o755)
