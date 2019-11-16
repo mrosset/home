@@ -53,3 +53,5 @@
       (lambda _
 	(delete-file tmp)
 	))))
+
+(exit-with-summary (run-all-defined-test-cases))

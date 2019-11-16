@@ -20,10 +20,7 @@
   #:use-module (oop goops)
   #:use-module (oop goops describe)
   #:use-module (unit-test)
-  #:use-module (home path)
-  #:use-module (home dir)
-  #:use-module (home file)
-  #:use-module (home doc-here))
+  #:use-module (home path))
 
 (define-class <test-path> (<test-case>))
 

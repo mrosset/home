@@ -28,3 +28,5 @@
   (let ((path (make <file>)))
     (assert-equal #o644 (mode path))
     (assert-equal 'file (type path))))
+
+(exit-with-summary (run-all-defined-test-cases))

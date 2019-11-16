@@ -18,7 +18,7 @@
 (define-module (home dir)
   #:use-module (home path)
   #:use-module (oop goops)
-  #:export (<dir>))
+  #:export (<dir> mode type))
 
 (define-class <dir> (<path>)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o755)

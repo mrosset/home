@@ -23,6 +23,8 @@
   #:use-module ((gcrypt hash) #:prefix gcrypt:)
   #:use-module (gcrypt base16)
   #:export (<file>
+	    mode
+	    type
 	    sum
 	    sum=
 	    check-sum?
