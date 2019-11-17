@@ -27,6 +27,7 @@
             ~/
             //
             home
+            input
             <path>
             string->path
             disk->path
@@ -53,7 +54,6 @@
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
   (type #:accessor type #:init-keyword #:type #:init-value #f))
 
-;; Path methods
 (define-method (path-name (self <path>))
   (if (string? (path self))
       (path self)

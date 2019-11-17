@@ -22,8 +22,9 @@
   #:use-module ((gcrypt hash) #:prefix gcrypt:)
   #:use-module (gcrypt base16)
   #:export (<doc-here>
-	    sum
-	    check-sum?))
+            content
+            sum
+            check-sum?))
 
 (define-class <doc-here> (<file>)
   (content #:accessor content #:init-keyword #:content #:init-value #f)

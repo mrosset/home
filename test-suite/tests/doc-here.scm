@@ -22,6 +22,7 @@
   #:use-module (unit-test)
   #:use-module (home doc-here)
   #:use-module (home file)
+  #:use-module (home generics)
   #:duplicates (merge-generics))
 
 (define-class <test-doc-here> (<test-case>))
@@ -54,5 +55,18 @@
 	(assert-false (sum= file fail-file)))
       (lambda _
 	(delete-file tmp)))))
+
+(define-method (test-doc-here-copy (self <test-doc-here>))
+  (let* ((tmp (tmpnam))
+	 (doc (make <doc-here> #:content "GNU"))
+	 (file (make <file> #:path tmp)))
+    (dynamic-wind
+      (lambda _
+	(copy doc file))
+      (lambda _
+	(assert-equal (sum doc) (sum file)))
+      (lambda _
+	(delete-file tmp)))
+    (copy doc file)))
 
 (exit-with-summary (run-all-defined-test-cases))

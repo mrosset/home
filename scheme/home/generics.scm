@@ -1,0 +1,17 @@
+(define-module (home generics)
+  #:use-module (home path)
+  #:use-module (home file)
+  #:use-module (home doc-here)
+  #:use-module (oop goops)
+  #:duplicates (merge-generics)
+  #:export (copy ensure))
+
+(define-method (copy (self <doc-here>) (output <path>))
+  (call-with-output-file (path-name output)
+     (lambda (port)
+      (display (content self)
+	       port)
+      (close-port port))))
+
+(define-method (ensure (self <file>))
+  (copy (input self) self))

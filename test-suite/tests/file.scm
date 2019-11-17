@@ -20,7 +20,10 @@
   #:use-module (oop goops)
   #:use-module (oop goops describe)
   #:use-module (unit-test)
-  #:use-module (home file))
+  #:use-module (home modules)
+  #:use-module (home generics)
+  #:duplicates (merge-generics)
+  )
 
 (define-class <test-file> (<test-case>))
 
@@ -31,6 +34,18 @@
 
 (define-method (test-file-equality (self <test-file>))
   (let ((file (make <file> #:path "/tmp/foo" #:hash "foo")))
-      (assert-true (file= file file))))
+    (assert-true (file= file file))))
+
+(define-method (test-file-ensure (self <test-file>))
+  (let* ((tmp (tmpnam))
+         (file (make <file> #:path tmp #:input (make <doc-here> #:content "GNU"))))
+    (dynamic-wind
+      (lambda _
+        (ensure file))
+      (lambda _
+        (assert-equal (sum (input file)) (sum file))
+        )
+      (lambda _
+        (delete-file tmp)))))
 
 (exit-with-summary (run-all-defined-test-cases))

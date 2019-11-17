@@ -2,6 +2,7 @@ include $(top_srcdir)/am/guile.mk
 
 SOURCES =
 SOURCES += home/modules.scm
+SOURCES += home/generics.scm
 SOURCES += home/path.scm
 SOURCES += home/file.scm
 SOURCES += home/dir.scm
