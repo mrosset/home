@@ -26,7 +26,7 @@
 
 (define-class <test-doc-here> (<test-case>))
 
- (define-method (test-validation (self <test-doc-here>))
+(define-method (test-validation (self <test-doc-here>))
   (let* ((tmp (tmpnam))
 	 (data "GNU")
 	 (doc (make <doc-here>
@@ -49,9 +49,10 @@
 	(assert-true (check-sum? doc))
 	(assert-true (check-sum? file))
 	(assert-false (check-sum? fail-doc))
-	(assert-false (check-sum? fail-file)))
+	(assert-false (check-sum? fail-file))
+	(assert-false (sum= doc fail-doc))
+	(assert-false (sum= file fail-file)))
       (lambda _
-	(delete-file tmp)
-	))))
+	(delete-file tmp)))))
 
 (exit-with-summary (run-all-defined-test-cases))
