@@ -21,6 +21,7 @@
   #:use-module (home dir)
   #:use-module (home file)
   #:use-module (home doc-here)
+  #:use-module (home generics)
   #:duplicates (merge-generics))
 
  ;;; Taken from Emacsy
@@ -37,4 +38,5 @@
 (re-export-modules '(home path)
 		   '(home dir)
 		   '(home file)
-		   '(home doc-here))
+		   '(home doc-here)
+		   '(home generics))

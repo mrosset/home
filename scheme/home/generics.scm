@@ -3,8 +3,23 @@
   #:use-module (home file)
   #:use-module (home doc-here)
   #:use-module (oop goops)
+  #:use-module (oop goops describe)
   #:duplicates (merge-generics)
   #:export (copy ensure))
+
+(define-method (equal? (a <path>) (b <path>))
+  (if (and (string= (path-name a) (path-name b))
+	   (eq? (paths a) (paths b))
+	   (eq? (mode a) (mode b))
+	   (eq? (type a) (type b)))
+      #t
+      #f))
+
+(define-method (equal? (a <file>) (b <file>))
+  (if (and (string= (file-hash a) (file-hash b))
+	   (next-method))
+      #t
+      #f))
 
 (define-method (copy (self <doc-here>) (output <path>))
   (call-with-output-file (path-name output)
@@ -13,5 +28,5 @@
 	       port)
       (close-port port))))
 
-(define-method (ensure (self <file>))
+(define-method (ensure (self <path>))
   (copy (input self) self))

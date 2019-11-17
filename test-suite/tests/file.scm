@@ -20,10 +20,7 @@
   #:use-module (oop goops)
   #:use-module (oop goops describe)
   #:use-module (unit-test)
-  #:use-module (home modules)
-  #:use-module (home generics)
-  #:duplicates (merge-generics)
-  )
+  #:use-module (home modules))
 
 (define-class <test-file> (<test-case>))
 
@@ -33,8 +30,10 @@
     (assert-equal 'file (type file))))
 
 (define-method (test-file-equality (self <test-file>))
-  (let ((file (make <file> #:path "/tmp/foo" #:hash "foo")))
-    (assert-true (file= file file))))
+  (let ((a (make <file> #:path "/tmp/foo" #:hash "foo"))
+        (b (make <file> #:path "/tmp/foo" #:hash "foo" #:mode #o755)))
+    (assert-equal a a)
+    (assert-false (equal? a b))))
 
 (define-method (test-file-ensure (self <test-file>))
   (let* ((tmp (tmpnam))

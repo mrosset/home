@@ -32,6 +32,7 @@
             string->path
             disk->path
             path
+            paths
             path=
             mode
             type
@@ -69,14 +70,6 @@
               (mode self)
               (type self))
       (close-port port))))
-
-(define-method (equal? (a <path>) (b <path>))
-  (if (and (string= (path-name a) (path-name b))
-           (eq? (paths a) (paths b))
-           (eq? (mode a) (mode b))
-           (eq? (type a) (type b)))
-      #t
-      #f))
 
 (define-method (string->path (self <string>))
   (make <path> #:path (lambda _ self)))

@@ -20,10 +20,7 @@
   #:use-module (oop goops)
   #:use-module (oop goops describe)
   #:use-module (unit-test)
-  #:use-module (home doc-here)
-  #:use-module (home file)
-  #:use-module (home generics)
-  #:duplicates (merge-generics))
+  #:use-module (home modules))
 
 (define-class <test-doc-here> (<test-case>))
 
