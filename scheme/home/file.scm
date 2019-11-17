@@ -22,7 +22,9 @@
   #:use-module (oop goops describe)
   #:use-module ((gcrypt hash) #:prefix gcrypt:)
   #:use-module (gcrypt base16)
-  #:export (<file>
+  #:export (
+	    <file>
+	    file=
 	    mode
 	    type
 	    sum

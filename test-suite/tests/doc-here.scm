@@ -26,7 +26,7 @@
 
 (define-class <test-doc-here> (<test-case>))
 
-(define-method (test-validation (self <test-doc-here>))
+(define-method (test-check-sums (self <test-doc-here>))
   (let* ((tmp (tmpnam))
 	 (data "GNU")
 	 (doc (make <doc-here>

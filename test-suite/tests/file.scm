@@ -25,8 +25,12 @@
 (define-class <test-file> (<test-case>))
 
 (define-method (test-file-defaults (self <test-file>))
-  (let ((path (make <file>)))
-    (assert-equal #o644 (mode path))
-    (assert-equal 'file (type path))))
+  (let ((file (make <file>)))
+    (assert-equal #o644 (mode file))
+    (assert-equal 'file (type file))))
+
+(define-method (test-file-equality (self <test-file>))
+  (let ((file (make <file> #:path "/tmp/foo" #:hash "foo")))
+      (assert-true (file= file file))))
 
 (exit-with-summary (run-all-defined-test-cases))
