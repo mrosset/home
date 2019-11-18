@@ -60,17 +60,6 @@
       (path self)
       ((path self))))
 
-(define-method (custom-write (self <path>) port)
-  (with-output-to-port port
-    (lambda _
-      (format #t "#<~a name: ~s input: ~a mode: ~a type: ~a>"
-              (class-name (class-of self))
-              (path-name self)
-              (input self)
-              (mode self)
-              (type self))
-      (close-port port))))
-
 (define-method (string->path (self <string>))
   (make <path> #:path (lambda _ self)))
 

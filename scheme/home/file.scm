@@ -40,14 +40,6 @@
 (define-method (sum= (a <file>) (b <file>))
   (string= (file-hash a) (file-hash b)))
 
-(define-method (file= (a <file>) (b <file>))
-  (if (and (string= (file-hash a) (file-hash b))
-	   (equal? a b))
-      #t
-      (begin (describe a)
-	     (describe b)
-	     #f)))
-
 (define-method (sum (self <file>))
   (bytevector->base16-string (gcrypt:file-sha256 (path-name self))))
 
