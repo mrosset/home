@@ -44,5 +44,3 @@
       (lambda _
 	(delete-file tmp)))
     (copy doc file)))
-
-(exit-with-summary (run-all-defined-test-cases))

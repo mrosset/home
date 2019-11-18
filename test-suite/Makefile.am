@@ -16,8 +16,7 @@
 ## You should have received a copy of the GNU General Public License along
 ## with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-TESTS =
-TESTS += tests/path.scm
+TESTS  = tests/path.scm
 TESTS += tests/dir.scm
 TESTS += tests/file.scm
 TESTS += tests/doc-here.scm
@@ -28,7 +27,22 @@ TEST_EXTENSIONS = .scm
 TESTS_ENVIRONMENT = \
 	$(abs_top_builddir)/pre-inst-env		\
 	$(GUILE) -L $(abs_top_builddir)/test-suite	\
-		 --no-auto-compile
+		 --no-auto-compile -s test-runner
 
 EXTRA_DIST = \
 	$(TESTS)
+
+test-list:
+	echo $(TESTS)
+
+do_subst = sed -e 's,[@]GUILE[@],$(GUILE),g'	\
+		-e 's,[@]LIBDIR[@],$(libdir),g' \
+		-e 's,[@]CCACHEDIR[@],$(SITECCACHEDIR),g'
+
+all-local: test-runner
+
+CLEANFILES =  test-runner
+
+test-runner: test-runner.in
+	$(do_subst) < $< > $@
+	chmod +x $@

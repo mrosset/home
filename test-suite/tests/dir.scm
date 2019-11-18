@@ -28,5 +28,3 @@
   (let ((path (make <dir>)))
     (assert-equal #o755 (mode path))
     (assert-equal 'directory (type path))))
-
-(exit-with-summary (run-all-defined-test-cases))

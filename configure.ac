@@ -32,6 +32,9 @@ GUILE_PROGS
 GUILE_SITE_DIR
 GUILE_FLAGS
 
+AC_PATH_PROG([GENHTML], [genhtml])
+AM_CONDITIONAL([HAVE_GENHTML], [test -n $GENHTML])
+
 SITEDIR="$datadir/guile/site/$GUILE_EFFECTIVE_VERSION";
 SITECCACHEDIR="$libdir/guile/$GUILE_EFFECTIVE_VERSION/site-ccache";
 
@@ -46,5 +49,6 @@ src/Makefile
 ])
 
 AC_CONFIG_FILES([pre-inst-env],[chmod +x pre-inst-env])
+AC_CONFIG_FILES([tools/coverage], [chmod +x tools/coverage])
 
 AC_OUTPUT

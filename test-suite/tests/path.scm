@@ -64,5 +64,3 @@
         (assert-equal data (disk->path tmp)))
       (lambda _
         (rmdir tmp)))))
-
-(exit-with-summary (run-all-defined-test-cases))
