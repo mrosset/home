@@ -24,34 +24,13 @@
 
 (define-class <test-doc-here> (<test-case>))
 
-(define-method (test-check-sums (self <test-doc-here>))
-  (let* ((tmp (tmpnam))
-	 (data "GNU")
-	 (doc (make <doc-here>
-		#:content "GNU"))
-	 (file (make <file>
-		 #:path tmp
-		 #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"))
-	 (fail-doc (shallow-clone doc))
-	 (fail-file (shallow-clone doc)))
+(define-method (test-doc-here-methods (self <test-doc-here>))
+  (let* ((doc (make <doc-here> #:content "GNU"))
+	 (fail-doc (shallow-clone doc)))
     (set! (file-hash fail-doc) "fail")
-    (set! (file-hash fail-file) "fail")
-    (dynamic-wind
-      (lambda _
-	(call-with-output-file tmp
-	  (lambda (port)
-	    (display data port)
-	    (close-output-port port))))
-      (lambda _
-	(assert-true (sum= doc file))
-	(assert-true (check-sum? doc))
-	(assert-true (check-sum? file))
-	(assert-false (check-sum? fail-doc))
-	(assert-false (check-sum? fail-file))
-	(assert-false (sum= doc fail-doc))
-	(assert-false (sum= file fail-file)))
-      (lambda _
-	(delete-file tmp)))))
+    (assert-true (exists? doc))
+    (assert-true (check-sum? doc))
+    (assert-false (sum= doc fail-doc))))
 
 (define-method (test-doc-here-copy (self <test-doc-here>))
   (let* ((tmp (tmpnam))

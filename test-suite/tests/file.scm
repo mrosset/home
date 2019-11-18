@@ -35,15 +35,15 @@
     (assert-equal a a)
     (assert-false (equal? a b))))
 
-(define-method (test-file-ensure (self <test-file>))
+(define-method (test-file-methods (self <test-file>))
   (let* ((tmp (tmpnam))
          (file (make <file> #:path tmp #:input (make <doc-here> #:content "GNU"))))
     (dynamic-wind
       (lambda _
-        (ensure file))
+        (ensure file #f))
       (lambda _
-        (assert-equal (sum (input file)) (sum file))
-        )
+        (assert-true (exists? file))
+        (assert-equal (sum (input file)) (sum file)))
       (lambda _
         (delete-file tmp)))))
 
