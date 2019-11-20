@@ -1,5 +1,7 @@
 SUBDIRS = scheme test-suite src
 
+CLEANFILES = coverage lcov.info
+
 lcov.info: all
 	$(top_builddir)/pre-inst-env $(top_builddir)/tools/coverage
 

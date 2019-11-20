@@ -70,7 +70,7 @@
 (define (list-tests)
   "List the tests specified in the @file{Makefile}."
   (let* ((port (open-pipe* OPEN_READ "make"
-			   "-f" "@abs_top_srcdir@/test-suite/Makefile" "test-list"))
+			   "-f" "@abs_top_builddir@/test-suite/Makefile" "test-list"))
 	 (tests (filter (lambda (x)
 			  (and (not (string-null? x))
 			       (string-suffix? ".scm" x)))
