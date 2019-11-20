@@ -24,6 +24,7 @@
   #:use-module (gcrypt base16)
   #:export (
 	    <file>
+	    disk->file
 	    file=
 	    mode
 	    type
@@ -36,6 +37,15 @@
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
   (hash #:accessor file-hash #:init-keyword #:hash #:init-value #f)
   (type #:accessor type #:init-keyword #:type #:init-value 'file))
+
+(define-method (disk->file (path <string>))
+  (let* ((fi (stat path))
+	 (file (make <file>
+		 #:path path
+		 #:type (stat:type fi)
+		 #:mode (stat:perms fi))))
+    (set! (file-hash file) (sum file))
+    file))
 
 (define-method (sum= (a <file>) (b <file>))
   (string= (file-hash a) (file-hash b)))

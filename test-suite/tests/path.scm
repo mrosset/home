@@ -54,13 +54,4 @@
 
 (define-method (test-constructors (self <test-path>))
   (assert-true (path= "/tmp/home" (string->path "/tmp/home")))
-  (assert-equal (make <path> #:path "/tmp/foo") (make <path> #:path "/tmp/foo"))
-  (let* ((tmp (tmpnam))
-         (data (make <path> #:path tmp #:type 'directory #:mode 420)))
-    (dynamic-wind
-      (lambda _
-        (mkdir tmp #o700))
-      (lambda _
-        (assert-equal data (disk->path tmp)))
-      (lambda _
-        (rmdir tmp)))))
+  (assert-equal (make <path> #:path "/tmp/foo") (make <path> #:path "/tmp/foo")))

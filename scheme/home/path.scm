@@ -30,7 +30,6 @@
             input
             <path>
             string->path
-            disk->path
             path
             paths
             path=
@@ -45,8 +44,7 @@
 
 (define ~ (lambda _ (fluid-ref fluid~)))
 
-(define ~/
-  (cut string-append (~) // <>))
+(define ~/ (cut string-append (~) // <>))
 
 (define-class <path> (<string>)
   (input #:accessor input #:init-keyword #:input #:init-value #f)
@@ -62,12 +60,6 @@
 
 (define-method (string->path (self <string>))
   (make <path> #:path (lambda _ self)))
-
-(define-method (disk->path (self <string>))
-  (let ((fi (stat self)))
-    (make <path>
-      #:path (lambda _ self)
-      #:type (stat:type fi))))
 
 (define-method (path= (a <string>) (b <path>))
   (string= a (path-name b)))
