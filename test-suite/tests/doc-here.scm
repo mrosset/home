@@ -32,7 +32,7 @@
     (assert-true (check-sum? doc))
     (assert-false (sum= doc fail-doc))))
 
-(define-method (test-doc-here-copy (self <test-doc-here>))
+(define-method (test-doc-here-build (self <test-doc-here>))
   (let* ((tmp (tmpnam))
 	 (doc (make <doc-here> #:content "GNU"))
 	 (file (make <file>
@@ -40,7 +40,7 @@
 		 #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0")))
     (dynamic-wind
       (lambda _
-	(copy doc file))
+	(build doc file))
       (lambda _
 	(assert-equal (sum doc) (sum file)))
       (lambda _

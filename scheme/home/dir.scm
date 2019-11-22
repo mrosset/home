@@ -18,8 +18,24 @@
 (define-module (home dir)
   #:use-module (home path)
   #:use-module (oop goops)
-  #:export (<dir> mode type))
+  #:use-module (oop goops describe)
+  #:export (<dir> path= remove entries type))
 
 (define-class <dir> (<path>)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o755)
+  (entries #:accessor entries #:init-keyword #:entries #:init-value #f)
   (type #:accessor type #:init-keyword #:type #:init-value 'directory))
+
+(define-method (remove (self <dir>))
+  (when (entries self)
+    (for-each (lambda (entry)
+                (remove entry))
+              (entries self)))
+  (rmdir (path-name self)))
+
+(define-method (path= (a <dir>) (b <dir>))
+  (if (and (string= (path-name a) (path-name b))
+           ;; (eq? (entries a) (entries b))
+           (equal? (mode a) (mode b)))
+      #t
+      #f))

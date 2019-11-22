@@ -23,9 +23,11 @@
   #:use-module ((gcrypt hash) #:prefix gcrypt:)
   #:use-module (gcrypt base16)
   #:export (
+            fluid~
             ~
             ~/
             //
+            with-parent
             home
             input
             <path>
@@ -34,9 +36,11 @@
             paths
             path=
             mode
+            exists?
             type
             path-name
-            fluid~))
+            <child>
+            root))
 
 (define fluid~ (make-fluid (getenv "HOME")))
 
@@ -49,14 +53,26 @@
 (define-class <path> (<string>)
   (input #:accessor input #:init-keyword #:input #:init-value #f)
   (path #:accessor path #:init-keyword #:path #:init-value (lambda _ #f))
-  (paths #:accessor paths #:init-keyword #:paths #:init-value #f)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
   (type #:accessor type #:init-keyword #:type #:init-value #f))
+
+(define-syntax with-parent
+  (syntax-rules ()
+    ((with-parent parent exp)
+     (exp parent))))
+
+(define-class <child> (<path>)
+  (root #:accessor root #:init-keyword #:root #:init-value #f))
 
 (define-method (path-name (self <path>))
   (if (string? (path self))
       (path self)
       ((path self))))
+
+(define-method (path-name (self <child>))
+  (string-append (if (string? (root self))
+                     (root self)
+                     ((root self))) // (next-method)))
 
 (define-method (string->path (self <string>))
   (make <path> #:path (lambda _ self)))
@@ -64,5 +80,5 @@
 (define-method (path= (a <string>) (b <path>))
   (string= a (path-name b)))
 
-(define-method (path= (a <path>) (b <path>))
-  (string= (path-name a) (path-name b)))
+(define-method (exists? (self <path>))
+  (file-exists? (path-name self)))

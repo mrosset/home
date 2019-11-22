@@ -80,4 +80,6 @@ export LD_LIBRARY_PATH
 # export TEST_IMAGES_PATH
 
 
+export GUILE_AUTO_COMPILE=0
+
 exec "$@"

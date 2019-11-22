@@ -46,11 +46,29 @@
   (assert-equal (make <path> #:path "/tmp" #:type 'directory #:mode 422)
                 (make <path> #:path "/tmp" #:type 'directory #:mode 422))
   (assert-false (equal? (make <path> #:path "/foo" #:type 'directory  #:mode 422)
-                        (make <path> #:path "/bar" #:type 'directory #:mode 422)))
+                (make <path> #:path "/bar" #:type 'directory #:mode 422)))
   (assert-false (equal? (make <path> #:path "/tmp" #:type 'file #:mode 422)
                         (make <path> #:path "/tmp" #:type 'directory #:mode 422)))
   (assert-false (equal? (make <path> #:path "/tmp" #:type #f #:mode 420)
-                        (make <path> #:path "/tmp" #:type #f #:mode 422))))
+                        (make <path> #:path "/tmp" #:type #f #:mode 422)))
+  (assert-true  (path= "/tmp" (make <path> #:path "/tmp" #:type 'directory #:mode 422))))
+
+(define-method (test-path-name (self <test-path>))
+  (assert-equal "/tmp/home" (path-name (make <path> #:path "/tmp/home")))
+  (assert-equal "/tmp/home" (path-name (make <path> #:path (lambda _ "/tmp/home"))))
+  (with-parent "/tmp"
+               (lambda (parent)
+                 (assert-equal "/tmp/home" (path-name (make <child> #:root parent #:path (lambda _ "home"))))
+                 (assert-equal "/tmp/home" (path-name (make <child> #:root parent #:path "home"))))))
+
+(define-method (test-child (self <test-path>))
+  (with-fluid* fluid~ "/tmp/home"
+               (lambda ()
+               (with-parent ~
+                (lambda (parent)
+                  (let ((child (make <child> #:root parent #:path "foo")))
+                   (assert-equal "/tmp/home/foo" (path-name child)))))
+                 )))
 
 (define-method (test-constructors (self <test-path>))
   (assert-true (path= "/tmp/home" (string->path "/tmp/home")))

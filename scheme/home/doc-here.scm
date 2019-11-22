@@ -19,6 +19,7 @@
 (define-module (home doc-here)
   #:use-module (oop goops)
   #:use-module (home file)
+  #:use-module (home path)
   #:use-module ((gcrypt hash) #:prefix gcrypt:)
   #:use-module (gcrypt base16)
   #:export (<doc-here>
@@ -33,6 +34,9 @@
 (define-method (initialize (self <doc-here>) args)
   (next-method)
   (set! (file-hash self) (sum self)))
+
+(define-method (exists? (self <doc-here>))
+  #t)
 
 (define-method (sum (self <doc-here>))
   (call-with-input-string (content self)

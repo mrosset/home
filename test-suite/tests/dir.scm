@@ -20,7 +20,7 @@
   #:use-module (oop goops)
   #:use-module (oop goops describe)
   #:use-module (unit-test)
-  #:use-module (home dir))
+  #:use-module (home modules))
 
 (define-class <test-dir> (<test-case>))
 
@@ -28,3 +28,21 @@
   (let ((path (make <dir>)))
     (assert-equal #o755 (mode path))
     (assert-equal 'directory (type path))))
+
+(define-method (test-dir-build (self <test-dir>))
+  (let* ((tmp (tmpnam))
+         (tmp-dir (make <dir>
+                    #:path tmp
+                    #:entries (list (make <dir>
+                                      #:path (string-append tmp // "dir1"))))))
+    (dynamic-wind
+      (lambda _ #t)
+      (lambda _
+        (assert-true (ensure tmp-dir #f))
+        (assert-true (path= (disk->file (path-name tmp-dir)) tmp-dir))
+        (assert-true (exists? tmp-dir)))
+      (lambda _
+        #t
+        (when #f (exists? tmp-dir)
+            (remove tmp-dir)
+         (assert-false (exists? tmp-dir)))))))
