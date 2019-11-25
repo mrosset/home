@@ -20,6 +20,7 @@
   #:use-module (oop goops)
   #:use-module (home file)
   #:use-module (home path)
+  #:use-module (home init)
   #:use-module ((gcrypt hash) #:prefix gcrypt:)
   #:use-module (gcrypt base16)
   #:export (<doc-here>
@@ -33,10 +34,8 @@
 
 (define-method (initialize (self <doc-here>) args)
   (next-method)
-  (set! (file-hash self) (sum self)))
-
-(define-method (exists? (self <doc-here>))
-  #t)
+  (set! (file-hash self) (sum self))
+  (set! (path self) (string-append (path-name %cache) // (file-hash self))))
 
 (define-method (sum (self <doc-here>))
   (call-with-input-string (content self)

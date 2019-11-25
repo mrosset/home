@@ -26,13 +26,17 @@
 	    <file>
 	    sum
 	    sum=
+	    remove
 	    check-sum?
 	    file-hash))
 
 (define-class <file> (<path>)
   (mode #:accessor mode #:init-keyword #:mode #:init-value #o644)
   (hash #:accessor file-hash #:init-keyword #:hash #:init-value #f)
-  (type #:accessor type #:init-keyword #:type #:init-value 'file))
+  (type #:accessor type #:init-keyword #:type #:init-value 'regular))
+
+(define-method (remove (self <file>))
+  (delete-file (path-name self)))
 
 (define-method (sum= (a <file>) (b <file>))
   (string= (file-hash a) (file-hash b)))

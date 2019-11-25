@@ -31,10 +31,10 @@
             home
             input
             <path>
+            path-append
             string->path
             path
             paths
-            path=
             mode
             exists?
             type
@@ -70,9 +70,13 @@
       ((path self))))
 
 (define-method (path-name (self <child>))
+  "Returns the full path as a string"
   (string-append (if (string? (root self))
                      (root self)
                      ((root self))) // (next-method)))
+
+(define-method (path-append (self <path>) sub)
+  (string-append (path-name self) // sub))
 
 (define-method (string->path (self <string>))
   (make <path> #:path (lambda _ self)))

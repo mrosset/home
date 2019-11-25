@@ -1,7 +1,5 @@
-#!@GUILE@ -s
-!#
-;; home.in
-;; Copyright (C) 2017-2018 Michael Rosset <mike.rosset@gmail.com>
+;; git.scm
+;; Copyright (C) 2017-2019 Michael Rosset <mike.rosset@gmail.com>
 
 ;; This file is part of Home
 
@@ -18,17 +16,23 @@
 ;; You should have received a copy of the GNU General Public License along
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(set! %load-compiled-path
-      (cons* "@CCACHEDIR@"
-	     %load-compiled-path))
+(define-module (tests git)
+  #:use-module (unit-test)
+  #:use-module (home modules))
 
-(use-modules (home init)
-	     (home path))
+(define-class <test-dir> (<test-case>))
 
-(define (main . args)
-  (load (user-init-file)))
-
-(main (command-line))
-;; Local Variables:
-;; mode: scheme
-;; End:
+(define-method (test-git-build (self <test-dir>))
+  (let ((dir (make <git>
+	       #:mode #o755
+	       #:path "/tmp/git-test"
+	       #:hash "7ff0d888dcdf061b46d227cacf6d50cb7f5442ea"
+	       #:url "/home/mrosset/src/nomad")))
+    (dynamic-wind
+      (lambda _ #t)
+      (lambda _
+	(build dir)
+	(assert-true (exists? dir)))
+      (lambda _
+	(remove dir)))
+    ))

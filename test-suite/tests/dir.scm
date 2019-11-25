@@ -38,11 +38,12 @@
     (dynamic-wind
       (lambda _ #t)
       (lambda _
-        (assert-true (ensure tmp-dir #f))
+        (assert-equal tmp (build tmp-dir))
         (assert-true (path= (disk->file (path-name tmp-dir)) tmp-dir))
-        (assert-true (exists? tmp-dir)))
+        (assert-true (exists? tmp-dir))
+        )
       (lambda _
         #t
-        (when #f (exists? tmp-dir)
-            (remove tmp-dir)
-         (assert-false (exists? tmp-dir)))))))
+        (when (exists? tmp-dir)
+            (remove tmp-dir))
+        (assert-false (exists? tmp-dir))))))

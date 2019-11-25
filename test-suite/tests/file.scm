@@ -27,7 +27,7 @@
 (define-method (test-file-defaults (self <test-file>))
   (let ((file (make <file>)))
     (assert-equal #o644 (mode file))
-    (assert-equal 'file (type file))))
+    (assert-equal 'regular (type file))))
 
 (define-method (test-file-equality (self <test-file>))
   (let* ((file-a (make <file> #:path "/tmp/foo" #:hash "foo"))
@@ -36,23 +36,21 @@
     (assert-equal file-a file-b)
     (assert-false (equal? file-a file-c))))
 
-(define-method (test-file-ensure (self <test-file>))
-  (let* ((tmp (tmpnam))
-         (file (make <file>
-                 #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"
-                 #:path tmp
-                 #:mode #o644
-                 #:input (make <doc-here> #:path tmp #:content "GNU"))))
-    (dynamic-wind
-      (lambda _
-        #t
-        (assert-true (ensure file #f))
-        ;; (assert-true (exists? file))
-        ;; (assert-false (ensure file #f))
-        )
-      (lambda _
-        (assert-true (check-sum? file)))
-      (lambda _
-        (delete-file tmp)
-        (assert-false (exists? file))))
-    ))
+(define-method (test-file-build (self <test-file>))
+  (with-fluids ((fluid~ "/tmp/home"))
+    (let* ((tmp (tmpnam))
+           (file (make <file>
+                   #:hash "82781e26505c5484af6435ae1aab1b44a5f4f49ffec39a4bdee63f9d347862b0"
+                   #:path tmp
+                   #:input (make <doc-here> #:path tmp #:content "GNU"))))
+      (dynamic-wind
+        (lambda _
+          (build %cache)
+          (assert-equal tmp (build file))
+          (assert-true (exists? file)))
+        (lambda _
+          (assert-true (check-sum? file)))
+        (lambda _
+          (delete-file tmp)
+          (assert-false (exists? file))))
+      )))

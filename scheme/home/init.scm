@@ -17,10 +17,14 @@
 ;; with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (home init)
-  :use-module (home path))
+  :use-module (home path)
+  :use-module (home dir)
+  :use-module (oop goops))
 
 (define-public (user-init-file)
   (~/ ".home"))
+
+(define-public %cache (make <cache>))
 
 (define-public (init)
   (load (user-init-file)))

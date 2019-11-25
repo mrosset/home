@@ -28,4 +28,5 @@
 
 (define-method (test-globals (self <test-init>))
   (with-fluids ((fluid~ "/tmp/home"))
-    (assert-equal "/tmp/home/.home" (user-init-file))))
+    (assert-equal "/tmp/home/.home" (user-init-file))
+    (assert-equal "/tmp/home/.cache/home" (path-name %cache))))
